@@ -1,8 +1,8 @@
 import cv2
 import numpy as np
 
-folderPath = 'C:/Users/Bren/Videos/'
-videoFile = "waterfall.mp4"
+folderPath = 'C:/Users/XXXX/Videos/'
+videoFile = "video.mp4"
 vidname,suf = videoFile.split('.')
 print(vidname)
 print(suf)
@@ -16,7 +16,7 @@ loadedint = 0
 trim_frames = []
 readfps = 1
 
-# https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
+# based on https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
 def loadvideo(fullPath,fps):
 	
 	global interval, loadedint
@@ -43,7 +43,7 @@ def loadvideo(fullPath,fps):
 	# print(interval)
 	# print(loadedint)
 	return images, fps, readfps
-# https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
+# based on https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
 def savevideo(list):
 	global folderPath,vidname,suf,fps
 
