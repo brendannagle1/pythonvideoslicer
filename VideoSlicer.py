@@ -1,13 +1,8 @@
 import cv2
-import numpy as np
 
-#insert your path to video
 folderPath = 'C:/Users/Bren/Videos/'
-#insertfilename
 videoFile = "waterfall.mp4"
 vidname,suf = videoFile.split('.')
-print(vidname)
-#print(suf)
 
 fullPath = folderPath + videoFile
 
@@ -77,22 +72,19 @@ def on_frame_trackbar(val):
 	cv2.imshow(window_capture_name,images[val])
 
 
-cv2.namedWindow(window_capture_name)
-cv2.createTrackbar(frame_select_name, window_capture_name , first_frame, last_frame, on_frame_trackbar)
+cv2.namedWindow(window_capture_name,cv2.WINDOW_NORMAL)
+cv2.createTrackbar(frame_select_name, window_capture_name , first_frame, (last_frame-1), on_frame_trackbar)
 cv2.imshow(window_capture_name,images[0])
 
-#once loaded relocate the task bar to your first frame, press spacebar. Repeat process for the end frame
+
 while True:
 	key = cv2.waitKey(30)
 	if key == ord('q') or key == 27:
 		break
 	if key == 32:
-		# p rint(val)
 		trim_frames.append(cv2.getTrackbarPos(frame_select_name, window_capture_name) ) 
-		# print(trim_frames)
-		print('space bar pressed')
 	if len(trim_frames)==2:
-		print(trim_frames)
 		cv2.destroyWindow(window_capture_name)
+		print('Saving Video')
 		savevideo(images[trim_frames[0]:trim_frames[1]]) 
 		break
