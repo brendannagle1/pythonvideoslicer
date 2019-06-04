@@ -1,11 +1,13 @@
 import cv2
 import numpy as np
 
-folderPath = 'C:/Users/XXXX/Videos/'
-videoFile = "video.mp4"
+#insert your path to video
+folderPath = 'C:/Users/Bren/Videos/'
+#insertfilename
+videoFile = "waterfall.mp4"
 vidname,suf = videoFile.split('.')
 print(vidname)
-print(suf)
+#print(suf)
 
 fullPath = folderPath + videoFile
 
@@ -16,7 +18,10 @@ loadedint = 0
 trim_frames = []
 readfps = 1
 
-# based on https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
+frame_select_name = 'Frm Sel'
+window_capture_name = 'Video Capture'
+
+# https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
 def loadvideo(fullPath,fps):
 	
 	global interval, loadedint
@@ -26,9 +31,7 @@ def loadvideo(fullPath,fps):
 	# print(readfps)
 	success,image = vidcap.read()
 	
-
-	seconds = 1
-	multiplier = fps * seconds
+	multiplier = readfps / fps
 
 	while success:
 		frameId = int(round(vidcap.get(1)))
@@ -43,7 +46,7 @@ def loadvideo(fullPath,fps):
 	# print(interval)
 	# print(loadedint)
 	return images, fps, readfps
-# based on https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
+# https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
 def savevideo(list):
 	global folderPath,vidname,suf,fps
 
@@ -56,7 +59,7 @@ def savevideo(list):
 		out.write(list[i])
 	out.release
 
-images, fps, readfps = loadvideo(fullPath,5)
+images, fps, readfps = loadvideo(fullPath,30)
 # savevideo(images)
 
 print(len(images))
@@ -72,13 +75,13 @@ def on_frame_trackbar(val):
 	frame_count = val
 	cv2.setTrackbarPos(first_frame_name, window_capture_name, last_frame)
 	cv2.imshow(window_capture_name,images[val])
-frame_select_name = 'Frm Sel'
-window_capture_name = 'Video Capture'
+
+
 cv2.namedWindow(window_capture_name)
 cv2.createTrackbar(frame_select_name, window_capture_name , first_frame, last_frame, on_frame_trackbar)
 cv2.imshow(window_capture_name,images[0])
 
-
+#once loaded relocate the task bar to your first frame, press spacebar. Repeat process for the end frame
 while True:
 	key = cv2.waitKey(30)
 	if key == ord('q') or key == 27:
