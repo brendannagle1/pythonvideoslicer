@@ -78,9 +78,21 @@ cv2.imshow(window_capture_name,images[0])
 
 
 while True:
-	key = cv2.waitKey(30)
+	key = cv2.waitKeyEx(30)
 	if key == ord('q') or key == 27:
 		break
+	if key == 2424832:
+		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
+		value = value - 1
+		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
+		cv2.imshow(window_capture_name,images[value])
+		print('left')
+	if key == 2555904:
+		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
+		value = value + 1
+		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
+		cv2.imshow(window_capture_name,images[value])
+		print('right')
 	if key == 32:
 		trim_frames.append(cv2.getTrackbarPos(frame_select_name, window_capture_name) ) 
 	if len(trim_frames)==2:
