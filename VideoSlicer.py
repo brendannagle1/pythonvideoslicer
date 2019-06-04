@@ -81,15 +81,23 @@ while True:
 	key = cv2.waitKeyEx(30)
 	if key == ord('q') or key == 27:
 		break
+	#arrow codes could be different based on different computers configurations
 	if key == 2424832:
 		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
-		value = value - 1
+		if value == 0:
+			value = 0
+		else:
+			value = value - 1
+		# value = value - 1
 		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
 		cv2.imshow(window_capture_name,images[value])
 		print('left')
 	if key == 2555904:
 		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
-		value = value + 1
+		if value == (last_frame-1):
+			value = (last_frame-1)
+		else:
+			value = value + 1
 		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
 		cv2.imshow(window_capture_name,images[value])
 		print('right')
