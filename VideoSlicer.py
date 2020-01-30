@@ -1,110 +1,133 @@
 import cv2
 
-folderPath = 'C:/Users/Bren/Videos/'
-videoFile = "waterfall.mp4"
-vidname,suf = videoFile.split('.')
-
-fullPath = folderPath + videoFile
-
-images = []
-
-interval = 0
-loadedint = 0
-trim_frames = []
-readfps = 1
-
-frame_select_name = 'Frm Sel'
-window_capture_name = 'Video Capture'
-
 # https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
-def loadvideo(fullPath,fps):
-	
-	global interval, loadedint
+def loadvideo(fullPath, fps, interval):
 
-	vidcap = cv2.VideoCapture(fullPath)
-	readfps = round(vidcap.get(cv2.CAP_PROP_FPS))
-	# print(readfps)
-	success,image = vidcap.read()
-	
-	multiplier = readfps / fps
+    images = []
+    print('Frames Loading')
+    vidcap = cv2.VideoCapture(fullPath)
+    readfps = vidcap.get(cv2.CAP_PROP_FPS)
+    # print(readfps)
+    success, image = vidcap.read()
+    
+    multiplier = int(readfps/ fps)
 
-	while success:
-		frameId = int(round(vidcap.get(1)))
-		success, image = vidcap.read()
-		interval = interval + 1
+    while success:
+        frameId = int(round(vidcap.get(1)))
+        success, image = vidcap.read()
+        interval = interval + 1
 
-		if frameId % multiplier == 0:
-			images.append(image)
-			loadedint = loadedint + 1
-	
-	vidcap.release()
-	# print(interval)
-	# print(loadedint)
-	return images, fps, readfps
+        if frameId % multiplier == 0:
+            images.append(image)
+    
+    vidcap.release()
+
+    return images, readfps, interval
+
 # https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
-def savevideo(list):
-	global folderPath,vidname,suf,fps
+def savevideo(list, folderPath, vidname, suf, fps):
+    print('Starting Encoding')
+    first_frame = 0
+    last_frame = len(list)-1
+    img = list[1]
+    height, width, layers = img.shape
+    size = (width,height)
+    vid_length_t = round(len(list)/fps, 1)
 
-	img = list[1]
-	height, width, layers = img.shape
-	size = (width,height)
+    final_path = folderPath+vidname+str(3)+"."+suf
 
-	out = cv2.VideoWriter(folderPath+vidname+str(3)+"."+suf,cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
-	for i in range(len(list)):
-		out.write(list[i])
-	out.release
+    out = cv2.VideoWriter(final_path,cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
+    for i in range(len(list)):
+        out.write(list[i])
+    out.release
 
-images, fps, readfps = loadvideo(fullPath,30)
+    print(f'Saving Video, Path:{final_path}, FPS: {fps}, Length:{vid_length_t}(s) ')
+
+def nothing(val):
+    pass
+
+def main():
+    
+    folderPath = 'C:/Users/Bren/Videos/'
+    videoFile = "waterfall.mp4"
+    vidname, suf = videoFile.split('.')
+
+    fullPath = folderPath + videoFile
+
+    images = []
+    trimed_frames_coords = []
+
+    interval = 0
+    readfps = 1
+    fps = 30
+
+    frame_select_tb_name = 'Frm Sel'
+    window_capture_name = 'Video Capture'
+
+
+    images, readfps, interval = loadvideo(fullPath, fps, interval)
 # savevideo(images)
 
-print(len(images))
+    print(f"Image Count:{len(images)}")
 
-first_frame = 0
-last_frame = loadedint-1
-frame_count = 1
-first_frame_name = 'First'
-last_frame_name = 'Last'
+    first_frame = 0
+    last_frame = len(images)-2
+    frame_count = 1
+    first_frame_name = 'First'
+    last_frame_name = 'Last'
 
-def on_frame_trackbar(val):
-	global first_frame,last_frame,images,trim_frames
-	frame_count = val
-	cv2.setTrackbarPos(first_frame_name, window_capture_name, last_frame)
-	cv2.imshow(window_capture_name,images[val])
+    cv2.namedWindow(window_capture_name,cv2.WINDOW_NORMAL)
+    cv2.createTrackbar(frame_select_tb_name, window_capture_name , 0, last_frame, nothing)
+    cv2.imshow(window_capture_name,images[0])
 
 
-cv2.namedWindow(window_capture_name,cv2.WINDOW_NORMAL)
-cv2.createTrackbar(frame_select_name, window_capture_name , first_frame, (last_frame-1), on_frame_trackbar)
-cv2.imshow(window_capture_name,images[0])
+    while True:
+    
+        key = cv2.waitKeyEx(30)
+        if key == ord('q') or key == 27:
+            break
 
+        value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name)
 
-while True:
-	key = cv2.waitKeyEx(30)
-	if key == ord('q') or key == 27:
-		break
-	#arrow codes could be different based on different computers configurations
-	if key == 2424832:
-		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
-		if value == 0:
-			value = 0
-		else:
-			value = value - 1
-		# value = value - 1
-		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
-		cv2.imshow(window_capture_name,images[value])
-		print('left')
-	if key == 2555904:
-		value = cv2.getTrackbarPos(frame_select_name, window_capture_name) 
-		if value == (last_frame-1):
-			value = (last_frame-1)
-		else:
-			value = value + 1
-		cv2.setTrackbarPos(frame_select_name, window_capture_name,value)
-		cv2.imshow(window_capture_name,images[value])
-		print('right')
-	if key == 32:
-		trim_frames.append(cv2.getTrackbarPos(frame_select_name, window_capture_name) ) 
-	if len(trim_frames)==2:
-		cv2.destroyWindow(window_capture_name)
-		print('Saving Video')
-		savevideo(images[trim_frames[0]:trim_frames[1]]) 
-		break
+        #arrow codes could be different based on different computers configurations
+        if key == 2424832: #left arrow
+            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name) 
+            if value == 0:
+                value = 0
+            else:
+                value = value - 1
+            # value = value - 1
+            cv2.setTrackbarPos(frame_select_tb_name, window_capture_name,value)
+            print('left')
+        
+        if key == 2555904: #right arrow
+            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name) 
+            if value == (last_frame):
+                value = (last_frame)
+            else:
+                value = value + 1
+            cv2.setTrackbarPos(frame_select_tb_name, window_capture_name,value)
+            # print('right')
+            print(f'value:{value}')
+        
+        if key == 32: #spacebar
+            temp_val = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name)
+            trimed_frames_coords.append(temp_val) 
+            # cv2.createTrackbar(frame_select_tb_name, window_capture_name , temp_val , last_frame, nothing)
+            if len(trimed_frames_coords) == 1:
+                print(f'First Frame:{temp_val}')
+            else:
+                print(f'Second Frame:{temp_val}')
+
+        if len(trimed_frames_coords)==2:
+            trimed_frames_coords.sort()
+            print(f'Min Frame:{trimed_frames_coords[0]}, Max Frame:{trimed_frames_coords[1]}')
+            cv2.destroyWindow(window_capture_name)
+            savevideo(images[trimed_frames_coords[0]:trimed_frames_coords[1]],folderPath, vidname, suf, readfps) 
+            break
+
+        cv2.imshow(window_capture_name,images[value])
+
+if __name__ == '__main__':
+
+    main()
