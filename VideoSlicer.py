@@ -8,7 +8,6 @@ def loadvideo(fullPath, fps, interval):
     vidcap = cv2.VideoCapture(fullPath)
     readfps = vidcap.get(cv2.CAP_PROP_FPS)
     print(f'Video FPS:{readfps} Requested FPS {fps}')
-    # print(readfps)
     success, image = vidcap.read()
     
     multiplier = round(readfps/ fps,0)
@@ -28,6 +27,7 @@ def loadvideo(fullPath, fps, interval):
 
 # https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
 def savevideo(list, folderPath, vidname, suf, fps):
+    
     print('Starting Encoding')
     first_frame = 0
     last_frame = len(list)-1
@@ -46,6 +46,7 @@ def savevideo(list, folderPath, vidname, suf, fps):
     print(f'Saving Video, Path:{final_path}, FPS: {fps}, Length:{vid_length_t}(s) ')
 
 def nothing(val):
+    
     pass
 
 def main():
@@ -68,7 +69,6 @@ def main():
 
 
     images, readfps, interval, multiplier = loadvideo(fullPath, fps, interval)
-# savevideo(images)
 
     print(f"Image Count:{len(images)}")
 
@@ -85,7 +85,7 @@ def main():
 
     while True:
     
-        key = cv2.waitKeyEx(30) #esc key
+        key = cv2.waitKeyEx(30)
         if key == ord('q') or key == 27:
             break
 
@@ -133,4 +133,3 @@ def main():
 if __name__ == '__main__':
 
     main()
-
