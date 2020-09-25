@@ -1,17 +1,14 @@
 # pythonvideoslicer
 
-Currently windows only
+This program was designed to easily parse 60 second video clips of relatively static action and generate mp4 and gif video outputs without audio
 
-To use set the folderPath and videoFile variables in the main method
+The program currently uses the opencv and imageio libraries
 
-- This program was designed to quickly splice 1080P 30FPS videos, that are Less than 60 Seconds in length.
+  -- WARNING -- : All Video frames will be loaded into memory if the n-th frame selected is 1.
 
-  -- WARNING -- : All Video frames will beloaded into memory if the fps variable matches the current actual video FPS.
-  
-- fps values should be a multiple of the loaded video intial FPS.  
-
-- The fps variable can be set to discard frames if a smaller FPS is necessary for larger files.
-- Left and Right keys can be used quickly toggle between images as well as the slider at the top of the screen.
-- Press the spacebar to select 2 images for the beggining and end frames.
+- The nth frame variable is set to discard frames if a smaller FPS is necessary for larger files.
+- Left and Right keys can be used quickly toggle between images as well as moving the slider with the mouse at the top of the screen.
+- Press the spacebar to select 2 images for the beggining and end frames. Selecting a later frame, then an earlier one will create the output in reverse.
+- Tkinter is used to provide an intial interface for selecting the nth fram variable and the type of output (.gif/.mp4)
 
 
