@@ -160,7 +160,7 @@ def main():
     root = tk.Tk()
     root.title('Select Frame Reducer')
     root.geometry('250x200')
-    ttk.Label(root, text = "Select Frame Reduction Multiplier :",
+    ttk.Label(root, text = "Select nth Frame Interval :",
         font = ("Times New Roman", 10)).grid(column = 1,
         row = 1, padx = 10, pady = 10)
 
@@ -179,6 +179,7 @@ def main():
                           ' 15',
                           ' 30',
                           ' 60')
+
     parse_val_choosen.grid(column = 1,
         row = 2, padx = 30, pady = 10)
     parse_val_choosen.current()
@@ -244,11 +245,19 @@ def main():
 
     cv2.namedWindow(window_capture_name,cv2.WINDOW_NORMAL)
     cv2.createTrackbar(frame_select_tb_name, window_capture_name , 0, last_frame, nothing)
-    cv2.imshow(window_capture_name,images[0])
+
+    scale_percentage = 40
+    w_out = int(images[0].shape[1]*scale_percentage/100)
+    h_out = int(images[0].shape[0]*scale_percentage/100)
+    dimensions = (w_out,h_out)
+    # print(dimensions)
+
+    img_to_show = cv2.resize(images[0], dimensions, interpolation = cv2.INTER_AREA)
+
+    cv2.imshow(window_capture_name,img_to_show)
+    cv2.resizeWindow(window_capture_name,img_to_show.shape[1],img_to_show.shape[0])
 
     while True:
-
-        cv2.resizeWindow(window_capture_name, images[0].shape[1], images[0].shape[0])
 
         key = cv2.waitKeyEx(30)
         if key == ord('q') or key == 27:
@@ -299,7 +308,8 @@ def main():
                     trimed_frames_coords,folderPath, vidname, suf, readfps/multiplier, output_format)
             break
 
-        cv2.imshow(window_capture_name, images[value])
+        img_to_show = cv2.resize(images[value], dimensions, interpolation = cv2.INTER_AREA)
+        cv2.imshow(window_capture_name, img_to_show)
 
 if __name__ == '__main__':
 
