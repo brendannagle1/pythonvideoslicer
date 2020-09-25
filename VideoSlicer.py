@@ -1,5 +1,6 @@
 import cv2
 import os
+import imageio
 # from tkinter import *
 import tkinter as tk
 from tkinter import filedialog
@@ -8,6 +9,7 @@ from tkinter import ttk
 from time import sleep
 
 fps = 0
+output_format = ''
 
 # https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
 def loadvideo(fullPath, fps, interval):
@@ -39,54 +41,128 @@ def loadvideo(fullPath, fps, interval):
     return images, readfps, interval, multiplier
 
 # https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
-def savevideo(img_list, frame_list, folderPath, vidname, suf, fps):
+def savevideo(img_list, frame_list, folderPath, vidname, suf, fps_out, output_format):
 
-    print('Starting Encoding')
-    # first_frame = 0
-    # last_frame = len(img_list)-1
+    print(f'Starting Encoding in: {output_format} format')
+
     img = img_list[0]
     height, width, layers = img.shape
     size = (width,height)
     vid_length_t = round(len(img_list)/fps, 1)
 
-    final_path = folderPath+vidname+'_trimmed'+"."+suf
+    final_path = folderPath+vidname+'_trimmed'+"."
+    if output_format == 'MP4':
+        temp_final_path = final_path+suf
+        out = cv2.VideoWriter(temp_final_path,cv2.VideoWriter_fourcc(*'mp4v'), round(fps_out,2), size)
 
-    out = cv2.VideoWriter(final_path,cv2.VideoWriter_fourcc(*'mp4v'), round(fps,2), size)
+        print (frame_list)
+        if frame_list[0] < frame_list[1]:
+            for i in range(len(img_list)):
+                out.write(img_list[i])
+        else:
+            for i in range(len(img_list)-1,-1,-1):
+                print(i)
+                out.write(img_list[i])
+        out.release
+        print(f'Saving Video, Path:{temp_final_path}, FPS: {round(fps,2)}, Length:{vid_length_t}(s) ')
 
-    print (frame_list)
-    if frame_list[0] < frame_list[1]:
-        for i in range(len(img_list)):
-            out.write(img_list[i])
+    elif output_format == 'GIF':
+        temp_gif_list = []
+        if frame_list[0] < frame_list[1]:
+            for i in range(len(img_list)):
+                temp_gif_list.append(cv2.cvtColor(img_list[i], cv2.COLOR_BGR2RGB))
+        else:
+            for i in range(len(img_list)-1,-1,-1):
+                temp_gif_list.append(cv2.cvtColor(img_list[i], cv2.COLOR_BGR2RGB))
+
+        counter = 0
+        while True:
+
+            path_to_check = final_path[:-1]+'_'+str(counter)+'.gif'
+
+            if os.path.exists(path_to_check):
+                counter += 1
+            else:
+                temp_final_path = path_to_check
+                break
+
+        imageio.mimwrite(temp_final_path, temp_gif_list, fps=fps_out)
+        print(f'Saving Video, Path:{temp_final_path}, FPS: {round(fps,2)}, Length:{vid_length_t}(s) ')
+
+    elif output_format == 'BOTH':
+        print("BOTH Selected")
+        counter = 0
+        while True:
+
+            path_to_check = final_path[:-1]+'_'+str(counter)+'.mp4'
+
+            if os.path.exists(path_to_check):
+                counter += 1
+            else:
+                temp_final_path = path_to_check
+                break
+
+        out = cv2.VideoWriter(temp_final_path,cv2.VideoWriter_fourcc(*'mp4v'), round(fps_out,2), size)
+
+        print (frame_list)
+        if frame_list[0] < frame_list[1]:
+            for i in range(len(img_list)):
+                out.write(img_list[i])
+        else:
+            for i in range(len(img_list)-1,-1,-1):
+                print(i)
+                out.write(img_list[i])
+        out.release
+        print(f'Saving Video, Path:{temp_final_path}, FPS: {round(fps,2)}, Length:{vid_length_t}(s) ')
+
+        temp_gif_list = []
+        if frame_list[0] < frame_list[1]:
+            for i in range(len(img_list)):
+                temp_gif_list.append(cv2.cvtColor(img_list[i], cv2.COLOR_BGR2RGB))
+        else:
+            for i in range(len(img_list)-1,-1,-1):
+                temp_gif_list.append(cv2.cvtColor(img_list[i], cv2.COLOR_BGR2RGB))
+
+        counter = 0
+        while True:
+
+            path_to_check = final_path[:-1]+'_'+str(counter)+'.gif'
+
+            if os.path.exists(path_to_check):
+                counter += 1
+            else:
+                temp_final_path = path_to_check
+                break
+
+        imageio.mimwrite(temp_final_path, temp_gif_list, fps=fps_out)
+        print(f'Saving Video, Path:{temp_final_path}, FPS: {round(fps,2)}, Length:{vid_length_t}(s) ')
+
     else:
-        for i in range(len(img_list)-1,-1,-1):
-            print(i)
-            out.write(img_list[i])
-
-    out.release
-
-    print(f'Saving Video, Path:{final_path}, FPS: {round(fps,2)}, Length:{vid_length_t}(s) ')
+        print('Unable to save Video')
 
 def nothing(val):
     pass
 
 def main():
-    global fps
+    global fps, output_format
 
     def submit():
-        global fps
+        global fps, output_format
 
         fps=int(parse_val_choosen.get())
-        if fps != '':
+        output_format = ouput_fmt_chsn.get()
+        if fps != '' and output_format != '':
             print("FPS selected is : " + str(fps))
+            print("File output selected is : " + str(output_format))
             root.quit()
             root.withdraw()
 
     root = tk.Tk()
     root.title('Select Frame Reducer')
-    root.geometry('250x125')
+    root.geometry('250x200')
     ttk.Label(root, text = "Select Frame Reduction Multiplier :",
         font = ("Times New Roman", 10)).grid(column = 1,
-        row = 14, padx = 10, pady = 10)
+        row = 1, padx = 10, pady = 10)
 
     n = tk.StringVar()
     parse_val_choosen = ttk.Combobox(root, width = 27,
@@ -106,6 +182,20 @@ def main():
     parse_val_choosen.grid(column = 1,
         row = 2, padx = 30, pady = 10)
     parse_val_choosen.current()
+
+    ttk.Label(root, text = "Select Video Output Type :",
+        font = ("Times New Roman", 10)).grid(column = 1,
+        row = 3, padx = 10, pady = 10)
+
+    m = tk.StringVar()
+    ouput_fmt_chsn = ttk.Combobox(root, width = 27,
+                                textvariable = m, state="readonly")
+    ouput_fmt_chsn['values'] = ('MP4',
+                          'GIF',
+                          'BOTH')
+    ouput_fmt_chsn.grid(column = 1,
+        row = 4, padx = 30, pady = 10)
+    ouput_fmt_chsn.current()
 
     ok_btn=tk.Button(root,text = 'OK',
                   command = submit)
@@ -156,7 +246,6 @@ def main():
     cv2.createTrackbar(frame_select_tb_name, window_capture_name , 0, last_frame, nothing)
     cv2.imshow(window_capture_name,images[0])
 
-
     while True:
 
         cv2.resizeWindow(window_capture_name, images[0].shape[1], images[0].shape[0])
@@ -204,10 +293,10 @@ def main():
 
             if trimed_frames_coords[0] < trimed_frames_coords[1]:
                 savevideo(images[trimed_frames_coords[0]:trimed_frames_coords[1]],\
-                    trimed_frames_coords,folderPath, vidname, suf, readfps/multiplier)
+                    trimed_frames_coords,folderPath, vidname, suf, readfps/multiplier, output_format)
             else:
                 savevideo(images[trimed_frames_coords[1]:trimed_frames_coords[0]],\
-                    trimed_frames_coords,folderPath, vidname, suf, readfps/multiplier)
+                    trimed_frames_coords,folderPath, vidname, suf, readfps/multiplier, output_format)
             break
 
         cv2.imshow(window_capture_name, images[value])
