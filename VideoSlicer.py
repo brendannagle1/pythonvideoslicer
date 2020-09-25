@@ -1,4 +1,7 @@
 import cv2
+import os
+from tkinter import *
+from tkinter import filedialog
 
 # https://stackoverflow.com/questions/22704936/reading-every-nth-frame-from-videocapture-in-opencv
 def loadvideo(fullPath, fps, interval):
@@ -9,7 +12,7 @@ def loadvideo(fullPath, fps, interval):
     readfps = vidcap.get(cv2.CAP_PROP_FPS)
     print(f'Video FPS:{readfps} Requested FPS {fps}')
     success, image = vidcap.read()
-    
+
     multiplier = round(readfps/ fps,0)
     print(f'Multiplier:{multiplier}')
 
@@ -20,14 +23,14 @@ def loadvideo(fullPath, fps, interval):
 
         if (frameId == 0) or (frameId % multiplier == 0):
             images.append(image)
-    
+
     vidcap.release()
 
     return images, readfps, interval, multiplier
 
 # https://theailearner.com/2018/10/15/creating-video-from-images-using-opencv-python/
 def savevideo(list, folderPath, vidname, suf, fps):
-    
+
     print('Starting Encoding')
     first_frame = 0
     last_frame = len(list)-1
@@ -46,13 +49,26 @@ def savevideo(list, folderPath, vidname, suf, fps):
     print(f'Saving Video, Path:{final_path}, FPS: {fps}, Length:{vid_length_t}(s) ')
 
 def nothing(val):
-    
+
     pass
 
 def main():
-    
-    folderPath = 'C:/Users/Bren/Videos/'
-    videoFile = "waterfall.mp4"
+
+    root = Tk()
+
+    root.filename = filedialog.askopenfilename(initialdir = "/",
+                                          title = "Open MP4 file",
+                                          filetypes = (("MP4",
+                                                        "*.mp4*"),
+                                                       ("all files",
+                                                        "*.*")))
+    print(root.filename.split('/')[-1])
+    # print('/'.join(root.filename.split('\\')[0:-1]))
+    print()
+    print(root.filename)
+
+    folderPath = '/'.join(root.filename.split('/')[0:-1])+'/'
+    videoFile =  root.filename.split('/')[-1]
     vidname, suf = videoFile.split('.')
 
     fullPath = folderPath + videoFile
@@ -84,7 +100,7 @@ def main():
 
 
     while True:
-    
+
         key = cv2.waitKeyEx(30)
         if key == ord('q') or key == 27:
             break
@@ -93,7 +109,7 @@ def main():
 
         #arrow codes could be different based on different computers configurations
         if key == 2424832: #left arrow
-            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name) 
+            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name)
             if value == 0:
                 value = 0
             else:
@@ -101,9 +117,9 @@ def main():
             # value = value - 1
             cv2.setTrackbarPos(frame_select_tb_name, window_capture_name,value)
             print('left')
-        
+
         if key == 2555904: #right arrow
-            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name) 
+            value = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name)
             if value == (last_frame):
                 value = (last_frame)
             else:
@@ -111,10 +127,10 @@ def main():
             cv2.setTrackbarPos(frame_select_tb_name, window_capture_name,value)
             # print('right')
             print(f'value:{value}')
-        
+
         if key == 32: #spacebar
             temp_val = cv2.getTrackbarPos(frame_select_tb_name, window_capture_name)
-            trimed_frames_coords.append(temp_val) 
+            trimed_frames_coords.append(temp_val)
             # cv2.createTrackbar(frame_select_tb_name, window_capture_name , temp_val , last_frame, nothing)
             if len(trimed_frames_coords) == 1:
                 print(f'First Frame:{temp_val}')
@@ -125,7 +141,7 @@ def main():
             trimed_frames_coords.sort()
             print(f'Min Frame:{trimed_frames_coords[0]}, Max Frame:{trimed_frames_coords[1]}')
             cv2.destroyWindow(window_capture_name)
-            savevideo(images[trimed_frames_coords[0]:trimed_frames_coords[1]],folderPath, vidname, suf, readfps/multiplier) 
+            savevideo(images[trimed_frames_coords[0]:trimed_frames_coords[1]],folderPath, vidname, suf, readfps/multiplier)
             break
 
         cv2.imshow(window_capture_name, images[value])
