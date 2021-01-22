@@ -1,6 +1,6 @@
 # pythonvideoslicer
 
-This program was designed to easily parse 60 second video clips of relatively static action and generate mp4 and gif video outputs without audio
+This program was designed to easily parse 60 second (@ ~60fps) video clips of relatively static action and generate mp4 and gif video outputs without audio
 
 The program currently uses the opencv and imageio libraries
 
